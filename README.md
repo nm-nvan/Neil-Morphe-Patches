@@ -1,16 +1,15 @@
-# 👋🧩 Morphe Patches template
+# 👋🧩 Neil Morphe Patches
 
-Template repository for Morphe Patches.
+Neil's personal patches for apps, for use with [Morphe](https://morphe.software).
 
 ## ❓ About
 
-Patches for apps I like.
-
-<!-- TODO: Update this about section with a brief introduction/summary about this repo and what it offers. -->
+A personal collection of patches for apps I use, maintained by Neil ([@nm-nvan](https://github.com/nm-nvan)).
+This is an independent project and is not affiliated with or endorsed by the Morphe project.
 
 ### How to use these patches
 
-Click here to add these patches to Morphe: https://morphe.software/add-source?github=xyz-user/xyz-patches
+Click here to add these patches to Morphe: https://morphe.software/add-source?github=nm-nvan/Neil-Morphe-Patches
 
 ## 🩹 Patches list
 
@@ -88,4 +87,4 @@ See the [Morphe documentation](https://github.com/MorpheApp/morphe-documentation
 
 ## 📜 License
 
-UserXYZ Patches are licensed under the [GNU General Public License v3.0](LICENSE)
+Neil Morphe Patches are licensed under the [GNU General Public License v3.0](LICENSE)
