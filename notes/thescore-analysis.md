@@ -33,6 +33,13 @@ The provided file is **a base split, not a complete APK**:
 Implication: installing this file alone fails (missing required splits). Patch the full bundle
 (APKM/APKS/XAPK) or a merged APK. Compatibility should therefore declare `apkFileType = ApkFileType.APKM`.
 
+### 26.12.0 (APKMirror bundle)
+`com.fivemobile.thescore_26.12.0-38771_…apkmirror.com.apkm`: versionCode 38771, a complete bundle
+(base + `config.arm64_v8a` + `config.xxhdpi` + `config.xxxhdpi`). Obfuscated names differ from 26.15.0
+(e.g. masthead delegate `Lbxe;`, list adapter `Lwod;`, ad storage `Lms;`), but source files, strings and item IDs
+are the same. Known difference: `MastheadAdManagerDelegate` has no deferred loader in 26.12.0.
+Patches are verified to apply to both versions with Morphe CLI 1.18.1.
+
 ## 2. Ads
 
 ### SDKs present
@@ -214,6 +221,15 @@ ViewModel `Lyrn;` (`TabsFragmentViewModel.kt`); per-screen delegates extend `Llc
 - **Hook:** return an empty list at the start of `l1e.a(...)`. Fingerprint: string `"RECENT_LEAGUES"`, params start with
   `Lcom/thescore/repositories/data/meta/LeaguesMeta;`. Alternative: filter the `RecentLeaguePillsItem` in the
   `h8e.t` hook (uniqueId `"RecentLeaguePillsItem"`).
+
+### Spotlight section (Leagues tab)
+- Below the chip row: a "Spotlight" header (`R.string.spotlight_text_redesign`) plus one row per active spotlight
+  (`com.thescore.repositories.data.spotlights.Spotlight`, e.g. "WNBA Finals: Game 3").
+- Built in `Ll1e;->c(Ljava/util/ArrayList;L…;)Ljava/io/Serializable;` (same `LeaguesMenuTransformer.kt`):
+  calls `b(spotlights)` to build rows (also records `seen_spotlights` in SharedPreferences), then returns
+  `header + rows`, or an empty list when there are none.
+- **Hook:** return an empty list at the start of `c(...)`. Header and rows disappear together, no gap.
+  Fingerprint: `resourceLiteral(ResourceType.STRING, "spotlight_text_redesign")`, return type `Ljava/io/Serializable;`.
 
 ## 6. Game Scorecast screen blocks
 
