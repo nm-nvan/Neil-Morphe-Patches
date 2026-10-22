@@ -16,7 +16,10 @@ Decompiled with jadx (output kept outside the repo). Obfuscated classes live in 
   e.g. `com.thescore.ads.delegate.BannerAdManagerDelegate`.
 - **Remote-config flag strings** (`"com.thescore.*"`), SharedPreferences keys, and `toString()` strings of data
   classes are plentiful and stable.
-- Resource IDs are available through `resourceLiteral(ResourceType.X, "name")`.
+- Resource IDs: feature modules read them from their **unobfuscated library R classes**
+  (`sget Lcom/thescore/repositories/R$string;->title_help:I`), not as inlined constants, so
+  `resourceLiteral(...)` alone does not match there. Use the `resourceReference(...)` helper
+  (field read or literal).
 - `bv` (Items.kt) keeps the unobfuscated `getUniqueId()` / `getStableId()`; `TabInfo`, `Text$Resource`,
   `Text$Raw`, the `TabsConfig$*`, `AccountsConfig$*` and other `com.thescore.repositories.data.*` model classes
   keep their names.

@@ -4,8 +4,8 @@ import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.nmnvan.patches.thescore.shared.Constants.COMPATIBILITY_THESCORE
-import com.nmnvan.patches.thescore.shared.Constants.EXTENSION_BUNDLE
 import com.nmnvan.patches.thescore.shared.Constants.EXTENSION_PACKAGE
+import com.nmnvan.patches.thescore.shared.sharedExtensionPatch
 
 private const val EXTENSION_CLASS = "$EXTENSION_PACKAGE/patches/HideAdsPatch;"
 
@@ -62,7 +62,7 @@ val hideInlineListAdsPatch = bytecodePatch(
 ) {
     compatibleWith(COMPATIBILITY_THESCORE)
 
-    extendWith(EXTENSION_BUNDLE)
+    dependsOn(sharedExtensionPatch)
 
     execute {
         // Drop ad items before the adapter diffs the list, so no empty slots are left behind.
