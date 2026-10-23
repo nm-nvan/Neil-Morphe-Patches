@@ -83,18 +83,25 @@ final class SettingsScreen {
 
         int shown = 0;
         for (Settings.Section section : Settings.SECTIONS) {
-            int shownInSection = 0;
-            for (BooleanSetting setting : section.settings) {
-                if (!setting.isAvailable()) continue;
-                if (shownInSection == 0) {
-                    list.addView(sectionHeader(activity, section, accent(dark), secondaryText));
-                } else {
-                    list.addView(divider(activity, divider));
+            boolean sectionShown = false;
+            for (Settings.Group group : section.groups) {
+                int shownInGroup = 0;
+                for (BooleanSetting setting : group.settings) {
+                    if (!setting.isAvailable()) continue;
+                    if (!sectionShown) {
+                        list.addView(sectionHeader(activity, section, accent(dark), secondaryText));
+                        sectionShown = true;
+                    }
+                    if (shownInGroup == 0) {
+                        if (group.title != null) list.addView(groupHeader(activity, group.title, primaryText));
+                    } else {
+                        list.addView(divider(activity, divider));
+                    }
+                    list.addView(settingRow(activity, setting, primaryText, secondaryText));
+                    shownInGroup++;
                 }
-                list.addView(settingRow(activity, setting, primaryText, secondaryText));
-                shownInSection++;
+                shown += shownInGroup;
             }
-            shown += shownInSection;
         }
         if (shown == 0) {
             TextView empty = new TextView(activity);
@@ -178,6 +185,16 @@ final class SettingsScreen {
             note.setPadding(0, dp(activity, 4), 0, 0);
             header.addView(note);
         }
+        return header;
+    }
+
+    private static View groupHeader(Activity activity, String title, int color) {
+        TextView header = new TextView(activity);
+        header.setText(title);
+        header.setTextSize(TypedValue.COMPLEX_UNIT_SP, 15);
+        header.setTypeface(Typeface.DEFAULT_BOLD);
+        header.setTextColor(color);
+        header.setPadding(dp(activity, 20), dp(activity, 14), dp(activity, 20), dp(activity, 2));
         return header;
     }
 

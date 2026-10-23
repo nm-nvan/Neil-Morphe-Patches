@@ -44,8 +44,8 @@ public final class HeaderTabsPatch {
         GAME_TAB_SETTINGS.put("tab_betting", HIDE_GAME_TAB_BETTING);
         GAME_TAB_SETTINGS.put("tab_betting_info", HIDE_GAME_TAB_BETTING);
         GAME_TAB_SETTINGS.put("tab_plays", HIDE_GAME_TAB_PLAYS);
-        GAME_TAB_SETTINGS.put("tab_drives", HIDE_GAME_TAB_PLAYS);
-        GAME_TAB_SETTINGS.put("tab_mbm", HIDE_GAME_TAB_PLAYS);
+        GAME_TAB_SETTINGS.put("tab_drives", HIDE_GAME_TAB_DRIVES);
+        GAME_TAB_SETTINGS.put("tab_mbm", HIDE_GAME_TAB_MBM);
         GAME_TAB_SETTINGS.put("tab_pitch_by_pitch", HIDE_GAME_TAB_PLAYS);
         GAME_TAB_SETTINGS.put("tab_fights", HIDE_GAME_TAB_FIGHTS);
         GAME_TAB_SETTINGS.put("tab_results", HIDE_GAME_TAB_RESULTS);

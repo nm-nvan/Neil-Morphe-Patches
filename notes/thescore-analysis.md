@@ -50,6 +50,17 @@ Google Mobile Ads / Ad Manager (`com.google.android.gms.ads`, "dfp"), Nimbus (`c
 demand), Amazon APS (`com.amazon` aps), Teads (`tv.teads`), Outbrain, IMA (video), AppHarbr (ad quality).
 theScore wraps them all behind its own ad layer.
 
+### Central blocking point (used by the "Remove ads" patch)
+Every theScore ad of any type is loaded through the `ScoreAdWrapper` interface (`ScoreAdWrapper.kt`):
+`load(AdType, String, String, String, Map, EventInfo, callback: (AdResult) -> Unit)`. There are three
+implementations: `ScoreGoogleAdWrapper` (GAM banner/masthead/big box/sponsor/golf/bracket),
+`ScoreNativeGoogleAdWrapper`, `ScoreVideoAdWrapper` (Scorecast field/ice video). Calling the callback with
+`AdFailed(null)` (toString `"AdFailed(code="`, `AdsGateway.kt`) at the start of each makes every placement take its
+normal no-fill path. Paths that bypass it: splash (`AdStorageGateway`), clip pre-roll (IMA via
+`GoogleAdManager` media item + ad tag), interstitials (`InterstitialAdManagerDelegate` frequency-cap check) and
+Teads (`TeadsAdManagerDelegate`). A network interceptor like adobo's Reddit patch would not work here: the ad SDKs,
+notably Google's, don't use the app's OkHttp client.
+
 ### theScore ad architecture
 | Role | Class (26.15.0) | SourceFile / anchor |
 |---|---|---|

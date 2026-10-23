@@ -16,19 +16,44 @@ public final class Settings {
     }
 
     /**
-     * A titled group of settings on the settings screen.
+     * Settings under an optional sub-heading (e.g. a sport) within a section.
+     */
+    public static final class Group {
+        /** Sub-heading, or null for settings shown directly under the section title. */
+        public final String title;
+        public final List<BooleanSetting> settings;
+
+        Group(String title, BooleanSetting... settings) {
+            this.title = title;
+            this.settings = Collections.unmodifiableList(Arrays.asList(settings));
+        }
+    }
+
+    /**
+     * A titled section of the settings screen.
      */
     public static final class Section {
         public final String title;
         public final String note;
-        public final List<BooleanSetting> settings;
+        public final List<Group> groups;
 
-        Section(String title, String note, BooleanSetting... settings) {
+        Section(String title, String note, Group... groups) {
             this.title = title;
             this.note = note;
-            this.settings = Collections.unmodifiableList(Arrays.asList(settings));
+            this.groups = Collections.unmodifiableList(Arrays.asList(groups));
+        }
+
+        Section(String title, String note, BooleanSetting... settings) {
+            this(title, note, new Group(null, settings));
         }
     }
+
+    private static final String ALL_SPORTS = "All sports";
+    private static final String BASEBALL = "Baseball";
+    private static final String FOOTBALL = "Football";
+    private static final String HOCKEY = "Hockey";
+    private static final String BASKETBALL = "Basketball";
+    private static final String OTHER = "Other";
 
     private static BooleanSetting.Availability bottomNav() {
         return BottomNavPatch::isPatchIncluded;
@@ -74,14 +99,20 @@ public final class Settings {
             "Hide Chat", null, headerTabs());
     public static final BooleanSetting HIDE_GAME_TAB_SCORECAST = new BooleanSetting("hide_game_tab_scorecast", false,
             "Hide Scorecast", "Also the Matchup tab before and after games. The next tab opens instead.", headerTabs());
-    public static final BooleanSetting HIDE_GAME_TAB_LINEUPS = new BooleanSetting("hide_game_tab_lineups", false,
-            "Hide Lineups", "Soccer.", headerTabs());
     public static final BooleanSetting HIDE_GAME_TAB_STATS = new BooleanSetting("hide_game_tab_stats", false,
             "Hide Stats", null, headerTabs());
     public static final BooleanSetting HIDE_GAME_TAB_BETTING = new BooleanSetting("hide_game_tab_betting", false,
             "Hide Betting", "Also Betting Info.", headerTabs());
     public static final BooleanSetting HIDE_GAME_TAB_PLAYS = new BooleanSetting("hide_game_tab_plays", false,
-            "Hide Plays", "Also Drives, Pitch-By-Pitch and MbM.", headerTabs());
+            "Hide Plays", null, headerTabs());
+
+    public static final BooleanSetting HIDE_GAME_TAB_DRIVES = new BooleanSetting("hide_game_tab_drives", false,
+            "Hide Drives", null, headerTabs());
+
+    public static final BooleanSetting HIDE_GAME_TAB_LINEUPS = new BooleanSetting("hide_game_tab_lineups", false,
+            "Hide Lineups", "Soccer.", headerTabs());
+    public static final BooleanSetting HIDE_GAME_TAB_MBM = new BooleanSetting("hide_game_tab_mbm", false,
+            "Hide MbM", "Soccer minute by minute.", headerTabs());
     public static final BooleanSetting HIDE_GAME_TAB_FIGHTS = new BooleanSetting("hide_game_tab_fights", false,
             "Hide Fights", "MMA.", headerTabs());
     public static final BooleanSetting HIDE_GAME_TAB_RESULTS = new BooleanSetting("hide_game_tab_results", false,
@@ -128,47 +159,53 @@ public final class Settings {
 
     // endregion
 
-    // region Scorecast blocks. The setting key ends with the app's block name.
+    // region Scorecast blocks.
 
-    private static BooleanSetting block(String blockName, String title, String summary) {
-        return new BooleanSetting("hide_scorecast_" + blockName.toLowerCase(), false, title, summary, scorecast());
+    private static BooleanSetting block(String key, String title, String summary) {
+        return new BooleanSetting("hide_scorecast_" + key, false, title, summary, scorecast());
     }
 
-    public static final BooleanSetting HIDE_SCORECAST_GAME_NEWS = block("GAME_NEWS", "Hide Game News", null);
-    public static final BooleanSetting HIDE_SCORECAST_ODDS = block("LIVE_ODDS", "Hide Odds", "Including Go to SBET and See All Odds.");
-    public static final BooleanSetting HIDE_SCORECAST_BETTING_POLL = block("BETTING_POLL", "Hide betting poll", null);
-    public static final BooleanSetting HIDE_SCORECAST_BET_HISTORY = block("BET_HISTORY", "Hide your bets", "Bets you placed on this game.");
-    public static final BooleanSetting HIDE_SCORECAST_PROP_ANALYSIS = block("PROP_ANALYSIS", "Hide prop analysis", null);
-    public static final BooleanSetting HIDE_SCORECAST_LIVE_STREAM_CTA = block("LIVE_STREAM_CTA", "Hide watch live prompt", null);
-    public static final BooleanSetting HIDE_SCORECAST_CLIPS = block("CLIPS", "Hide clips", null);
-    public static final BooleanSetting HIDE_SCORECAST_PREVIEW_RECAP = block("MATCHUP_PREVIEW_RECAP", "Hide preview / recap", null);
-    public static final BooleanSetting HIDE_SCORECAST_LAST_PLAY = block("LAST_PLAY", "Hide last play", null);
-    public static final BooleanSetting HIDE_SCORECAST_SCORING_SUMMARY = block("SCORING_SUMMARY", "Hide scoring summary", null);
-    public static final BooleanSetting HIDE_SCORECAST_TIMELINE = block("TIMELINE", "Hide timeline", null);
-    public static final BooleanSetting HIDE_SCORECAST_BOXSCORE = block("BOXSCORE", "Hide box score", null);
-    public static final BooleanSetting HIDE_SCORECAST_LINE_SCORE = block("LINE_SCORE", "Hide line score", null);
-    public static final BooleanSetting HIDE_SCORECAST_TEAM_STATS = block("TEAM_STATS", "Hide team stats", null);
-    public static final BooleanSetting HIDE_SCORECAST_TEAM_RECORDS = block("TEAM_RECORDS", "Hide team records", null);
-    public static final BooleanSetting HIDE_SCORECAST_TEAM_FORM = block("TEAM_FORM", "Hide team form", null);
-    public static final BooleanSetting HIDE_SCORECAST_PLAYER_COMPARISON = block("PLAYER_COMPARISON", "Hide player comparison", null);
-    public static final BooleanSetting HIDE_SCORECAST_PLAYER_PROFILES = block("PLAYER_PROFILES", "Hide player profiles", null);
-    public static final BooleanSetting HIDE_SCORECAST_STARTING_LINEUP = block("STARTING_LINEUP", "Hide starting lineups", null);
-    public static final BooleanSetting HIDE_SCORECAST_PLAYER_INJURIES = block("PLAYER_INJURIES", "Hide injuries", null);
-    public static final BooleanSetting HIDE_SCORECAST_PAST_MEETINGS = block("PAST_MEETINGS", "Hide past meetings",
-            "Also head to head and last 5 / 10 meetings.");
-    public static final BooleanSetting HIDE_SCORECAST_GAME_DETAILS = block("GAME_DETAILS", "Hide game details",
-            "Also match and tournament details.");
-    public static final BooleanSetting HIDE_SCORECAST_THREE_STARS = block("THREE_STARS", "Hide three stars", "Hockey.");
-    public static final BooleanSetting HIDE_SCORECAST_SHOTS_ON_GOAL = block("SHOTS_ON_GOAL", "Hide shots on goal", "Hockey.");
-    public static final BooleanSetting HIDE_SCORECAST_PENALTIES = block("MATCHUP_PENALTIES", "Hide penalties",
-            "Also penalty shootouts.");
-    public static final BooleanSetting HIDE_SCORECAST_LIVE_TABLE = block("LIVE_TABLE_PREVIEW", "Hide live table", "Soccer.");
-    public static final BooleanSetting HIDE_SCORECAST_MATCH_SUMMARY = block("MATCH_SUMMARY", "Hide match summary", null);
+    public static final BooleanSetting HIDE_SCORECAST_GAME_NEWS = block("game_news", "Hide Game News", null);
+    public static final BooleanSetting HIDE_SCORECAST_ODDS = block("live_odds", "Hide Odds", "Including Go to SBET and See All Odds.");
+    public static final BooleanSetting HIDE_SCORECAST_BETTING_POLL = block("betting_poll", "Hide betting poll", null);
+    public static final BooleanSetting HIDE_SCORECAST_BET_HISTORY = block("bet_history", "Hide your bets", "Bets you placed on this game.");
+    public static final BooleanSetting HIDE_SCORECAST_PROP_ANALYSIS = block("prop_analysis", "Hide prop analysis", null);
+    public static final BooleanSetting HIDE_SCORECAST_LIVE_STREAM_CTA = block("live_stream_cta", "Hide watch live prompt", null);
+    public static final BooleanSetting HIDE_SCORECAST_CLIPS = block("clips", "Hide clips", null);
+    public static final BooleanSetting HIDE_SCORECAST_PREVIEW_RECAP = block("matchup_preview_recap", "Hide preview / recap", null);
+    public static final BooleanSetting HIDE_SCORECAST_LAST_PLAY = block("last_play", "Hide last play", null);
+    public static final BooleanSetting HIDE_SCORECAST_SCORING_SUMMARY = block("scoring_summary", "Hide scoring summary", null);
+    public static final BooleanSetting HIDE_SCORECAST_BOXSCORE = block("boxscore", "Hide box score", null);
+    public static final BooleanSetting HIDE_SCORECAST_LINE_SCORE = block("line_score", "Hide line score", null);
+    public static final BooleanSetting HIDE_SCORECAST_TEAM_STATS = block("team_stats", "Hide team stats", null);
+    public static final BooleanSetting HIDE_SCORECAST_TEAM_RECORDS = block("team_records", "Hide team records", null);
+    public static final BooleanSetting HIDE_SCORECAST_TEAM_FORM = block("team_form", "Hide team form", null);
+    public static final BooleanSetting HIDE_SCORECAST_PLAYER_COMPARISON = block("player_comparison", "Hide player comparison", null);
+    public static final BooleanSetting HIDE_SCORECAST_STARTING_LINEUP = block("starting_lineup", "Hide starting lineups", null);
+    public static final BooleanSetting HIDE_SCORECAST_PLAYER_INJURIES = block("player_injuries", "Hide injuries", null);
+    public static final BooleanSetting HIDE_SCORECAST_PAST_MEETINGS = block("past_meetings", "Hide past meetings",
+            "Last 5 and last 10 meetings.");
+    public static final BooleanSetting HIDE_SCORECAST_GAME_DETAILS = block("game_details", "Hide game details", null);
+
+    public static final BooleanSetting HIDE_SCORECAST_THREE_STARS = block("three_stars", "Hide three stars", null);
+    public static final BooleanSetting HIDE_SCORECAST_SHOTS_ON_GOAL = block("shots_on_goal", "Hide shots on goal", null);
+    public static final BooleanSetting HIDE_SCORECAST_PENALTIES = block("matchup_penalties", "Hide penalties",
+            "Also shootouts.");
+
+    public static final BooleanSetting HIDE_SCORECAST_TIMELINE = block("timeline", "Hide timeline", "Soccer.");
+    public static final BooleanSetting HIDE_SCORECAST_LIVE_TABLE = block("live_table_preview", "Hide live table", "Soccer.");
+    public static final BooleanSetting HIDE_SCORECAST_HEAD_TO_HEAD = block("head_to_head", "Hide head to head",
+            "Tennis. Also past meetings.");
+    public static final BooleanSetting HIDE_SCORECAST_PLAYER_PROFILES = block("player_profiles", "Hide player profiles", "Tennis.");
+    public static final BooleanSetting HIDE_SCORECAST_MATCH_DETAILS = block("match_details", "Hide match details",
+            "Tennis. Also tournament details.");
+    public static final BooleanSetting HIDE_SCORECAST_MATCH_SUMMARY = block("match_summary", "Hide match summary", "Tennis.");
 
     // endregion
 
     /**
      * All settings by section, in the order shown on the settings screen.
+     * Sport sub-headings without settings are not shown.
      */
     public static final List<Section> SECTIONS = Collections.unmodifiableList(Arrays.asList(
             new Section("Bottom navigation",
@@ -178,25 +215,41 @@ public final class Settings {
                     KEEP_CLASSIC_GAME_SCREEN),
             new Section("Game screen tabs",
                     "If every tab of a game would be hidden, all tabs are shown.",
-                    HIDE_GAME_TAB_FEED, HIDE_GAME_TAB_CHAT, HIDE_GAME_TAB_SCORECAST, HIDE_GAME_TAB_LINEUPS,
-                    HIDE_GAME_TAB_STATS, HIDE_GAME_TAB_BETTING, HIDE_GAME_TAB_PLAYS, HIDE_GAME_TAB_FIGHTS,
-                    HIDE_GAME_TAB_RESULTS, HIDE_GAME_TAB_QUALIFYING, HIDE_GAME_TAB_LEADERBOARD,
-                    HIDE_GAME_TAB_COURSE, HIDE_GAME_TAB_INFO),
+                    new Group(ALL_SPORTS,
+                            HIDE_GAME_TAB_FEED, HIDE_GAME_TAB_CHAT, HIDE_GAME_TAB_SCORECAST, HIDE_GAME_TAB_STATS,
+                            HIDE_GAME_TAB_BETTING, HIDE_GAME_TAB_PLAYS),
+                    new Group(BASEBALL),
+                    new Group(FOOTBALL,
+                            HIDE_GAME_TAB_DRIVES),
+                    new Group(HOCKEY),
+                    new Group(BASKETBALL),
+                    new Group(OTHER,
+                            HIDE_GAME_TAB_LINEUPS, HIDE_GAME_TAB_MBM, HIDE_GAME_TAB_FIGHTS, HIDE_GAME_TAB_RESULTS,
+                            HIDE_GAME_TAB_QUALIFYING, HIDE_GAME_TAB_LEADERBOARD, HIDE_GAME_TAB_COURSE,
+                            HIDE_GAME_TAB_INFO)),
             new Section("League screen tabs",
                     "If every tab of a league would be hidden, all tabs are shown.",
                     HIDE_LEAGUE_TAB_SCORES, HIDE_LEAGUE_TAB_NEWS, HIDE_LEAGUE_TAB_CHAT, HIDE_LEAGUE_TAB_STANDINGS,
                     HIDE_LEAGUE_TAB_LEADERS, HIDE_LEAGUE_TAB_BRACKET, HIDE_LEAGUE_TAB_OTHER),
             new Section("Leagues tab", null,
                     HIDE_LEAGUE_CHIPS, HIDE_SPOTLIGHT),
-            new Section("Scorecast", "Blocks on a game's Scorecast tab. Not every block appears for every sport.",
-                    HIDE_SCORECAST_GAME_NEWS, HIDE_SCORECAST_ODDS, HIDE_SCORECAST_BETTING_POLL,
-                    HIDE_SCORECAST_BET_HISTORY, HIDE_SCORECAST_PROP_ANALYSIS, HIDE_SCORECAST_LIVE_STREAM_CTA,
-                    HIDE_SCORECAST_CLIPS, HIDE_SCORECAST_PREVIEW_RECAP, HIDE_SCORECAST_LAST_PLAY,
-                    HIDE_SCORECAST_SCORING_SUMMARY, HIDE_SCORECAST_TIMELINE, HIDE_SCORECAST_BOXSCORE,
-                    HIDE_SCORECAST_LINE_SCORE, HIDE_SCORECAST_TEAM_STATS, HIDE_SCORECAST_TEAM_RECORDS,
-                    HIDE_SCORECAST_TEAM_FORM, HIDE_SCORECAST_PLAYER_COMPARISON, HIDE_SCORECAST_PLAYER_PROFILES,
-                    HIDE_SCORECAST_STARTING_LINEUP, HIDE_SCORECAST_PLAYER_INJURIES, HIDE_SCORECAST_PAST_MEETINGS,
-                    HIDE_SCORECAST_GAME_DETAILS, HIDE_SCORECAST_THREE_STARS, HIDE_SCORECAST_SHOTS_ON_GOAL,
-                    HIDE_SCORECAST_PENALTIES, HIDE_SCORECAST_LIVE_TABLE, HIDE_SCORECAST_MATCH_SUMMARY)
+            new Section("Scorecast",
+                    "Blocks on a game's Scorecast tab. A block only appears when theScore has data for it.",
+                    new Group(ALL_SPORTS,
+                            HIDE_SCORECAST_GAME_NEWS, HIDE_SCORECAST_ODDS, HIDE_SCORECAST_BETTING_POLL,
+                            HIDE_SCORECAST_BET_HISTORY, HIDE_SCORECAST_PROP_ANALYSIS, HIDE_SCORECAST_LIVE_STREAM_CTA,
+                            HIDE_SCORECAST_CLIPS, HIDE_SCORECAST_PREVIEW_RECAP, HIDE_SCORECAST_LAST_PLAY,
+                            HIDE_SCORECAST_SCORING_SUMMARY, HIDE_SCORECAST_BOXSCORE, HIDE_SCORECAST_LINE_SCORE,
+                            HIDE_SCORECAST_TEAM_STATS, HIDE_SCORECAST_TEAM_RECORDS, HIDE_SCORECAST_TEAM_FORM,
+                            HIDE_SCORECAST_PLAYER_COMPARISON, HIDE_SCORECAST_STARTING_LINEUP,
+                            HIDE_SCORECAST_PLAYER_INJURIES, HIDE_SCORECAST_PAST_MEETINGS, HIDE_SCORECAST_GAME_DETAILS),
+                    new Group(BASEBALL),
+                    new Group(FOOTBALL),
+                    new Group(HOCKEY,
+                            HIDE_SCORECAST_THREE_STARS, HIDE_SCORECAST_SHOTS_ON_GOAL, HIDE_SCORECAST_PENALTIES),
+                    new Group(BASKETBALL),
+                    new Group(OTHER,
+                            HIDE_SCORECAST_TIMELINE, HIDE_SCORECAST_LIVE_TABLE, HIDE_SCORECAST_HEAD_TO_HEAD,
+                            HIDE_SCORECAST_PLAYER_PROFILES, HIDE_SCORECAST_MATCH_DETAILS, HIDE_SCORECAST_MATCH_SUMMARY))
     ));
 }
