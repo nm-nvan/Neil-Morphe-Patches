@@ -1,14 +1,13 @@
-group = "app.template"
+group = "com.nmnvan"
 
 patches {
-    // TODO: Update this section with your project details.
     about {
-        name = "UserXYZ Patches"
-        description = "Patches for apps I like"
-        source = "git@github.com:UserXYZ/morphe-patches.git"
-        author = "Awesome dev"
-        contact = "na"
-        website = "na"
+        name = "Neil Morphe Patches"
+        description = "Neil's personal patches for apps, for use with Morphe"
+        source = "git@github.com:nm-nvan/Neil-Morphe-Patches.git"
+        author = "Neil (nm-nvan)"
+        contact = "https://github.com/nm-nvan/Neil-Morphe-Patches/issues"
+        website = "https://github.com/nm-nvan/Neil-Morphe-Patches"
         license = "GPLv3"
     }
 }
