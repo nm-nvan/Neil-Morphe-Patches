@@ -18,4 +18,11 @@ public final class LeaguesScreenPatch {
     public static boolean hideLeagueChips() {
         return Settings.HIDE_LEAGUE_CHIPS.get();
     }
+
+    /**
+     * Injection point: start of LeaguesMenuTransformer's Spotlight section builder.
+     */
+    public static boolean hideSpotlight() {
+        return Settings.HIDE_SPOTLIGHT.get();
+    }
 }

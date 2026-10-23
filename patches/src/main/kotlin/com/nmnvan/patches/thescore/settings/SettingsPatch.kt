@@ -1,15 +1,11 @@
 package com.nmnvan.patches.thescore.settings
 
 import app.morphe.patcher.Fingerprint
-import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
-import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
-import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.resource.ResourceType
-import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.nmnvan.patches.thescore.shared.Constants.EXTENSION_PACKAGE
+import com.nmnvan.patches.thescore.shared.filterReturnedObjects
 import com.nmnvan.patches.thescore.shared.resourceReference
 import com.nmnvan.patches.thescore.shared.sharedExtensionPatch
 
@@ -50,29 +46,9 @@ internal val settingsPatch = bytecodePatch {
     dependsOn(sharedExtensionPatch)
 
     execute {
-        AccountRowsFingerprint.method.apply {
-            val returnIndices = implementation!!.instructions
-                .withIndex()
-                .filter { it.value.opcode == Opcode.RETURN_OBJECT }
-                .map { it.index }
-
-            // Replace each return instead of inserting before it, because returns can be jump targets.
-            returnIndices.asReversed().forEach { index ->
-                val register = getInstruction<OneRegisterInstruction>(index).registerA
-                replaceInstruction(
-                    index,
-                    "invoke-static/range { v$register .. v$register }, " +
-                        "$EXTENSION_CLASS->addSettingsRow(Ljava/lang/Object;)Ljava/lang/Object;"
-                )
-                addInstructions(
-                    index + 1,
-                    """
-                        move-result-object v$register
-                        return-object v$register
-                    """
-                )
-            }
-        }
+        AccountRowsFingerprint.method.filterReturnedObjects(
+            "$EXTENSION_CLASS->addSettingsRow(Ljava/lang/Object;)Ljava/lang/Object;"
+        )
 
         SettingsRowClickFingerprint.method.addInstructionsWithLabels(
             0,

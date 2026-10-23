@@ -82,11 +82,19 @@ final class SettingsScreen {
                 ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f));
 
         int shown = 0;
-        for (BooleanSetting setting : Settings.ALL) {
-            if (!setting.isAvailable()) continue;
-            if (shown > 0) list.addView(divider(activity, divider));
-            list.addView(settingRow(activity, setting, primaryText, secondaryText));
-            shown++;
+        for (Settings.Section section : Settings.SECTIONS) {
+            int shownInSection = 0;
+            for (BooleanSetting setting : section.settings) {
+                if (!setting.isAvailable()) continue;
+                if (shownInSection == 0) {
+                    list.addView(sectionHeader(activity, section, accent(dark), secondaryText));
+                } else {
+                    list.addView(divider(activity, divider));
+                }
+                list.addView(settingRow(activity, setting, primaryText, secondaryText));
+                shownInSection++;
+            }
+            shown += shownInSection;
         }
         if (shown == 0) {
             TextView empty = new TextView(activity);
@@ -128,12 +136,14 @@ final class SettingsScreen {
         title.setTextColor(primaryText);
         texts.addView(title);
 
-        TextView summary = new TextView(activity);
-        summary.setText(setting.summary);
-        summary.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
-        summary.setTextColor(secondaryText);
-        summary.setPadding(0, dp(activity, 2), 0, 0);
-        texts.addView(summary);
+        if (setting.summary != null) {
+            TextView summary = new TextView(activity);
+            summary.setText(setting.summary);
+            summary.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            summary.setTextColor(secondaryText);
+            summary.setPadding(0, dp(activity, 2), 0, 0);
+            texts.addView(summary);
+        }
 
         row.addView(texts, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1f));
 
@@ -145,6 +155,35 @@ final class SettingsScreen {
 
         row.setOnClickListener(v -> toggle.toggle());
         return row;
+    }
+
+    private static View sectionHeader(Activity activity, Settings.Section section, int titleColor, int noteColor) {
+        LinearLayout header = new LinearLayout(activity);
+        header.setOrientation(LinearLayout.VERTICAL);
+        header.setPadding(dp(activity, 20), dp(activity, 20), dp(activity, 20), dp(activity, 4));
+
+        TextView title = new TextView(activity);
+        title.setText(section.title.toUpperCase(java.util.Locale.ROOT));
+        title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+        title.setTypeface(Typeface.DEFAULT_BOLD);
+        title.setLetterSpacing(0.05f);
+        title.setTextColor(titleColor);
+        header.addView(title);
+
+        if (section.note != null) {
+            TextView note = new TextView(activity);
+            note.setText(section.note);
+            note.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13);
+            note.setTextColor(noteColor);
+            note.setPadding(0, dp(activity, 4), 0, 0);
+            header.addView(note);
+        }
+        return header;
+    }
+
+    /** theScore's blue. */
+    private static int accent(boolean dark) {
+        return dark ? Color.rgb(0x3D, 0x8B, 0xFF) : Color.rgb(0x00, 0x66, 0xE0);
     }
 
     private static View divider(Activity activity, int color) {
