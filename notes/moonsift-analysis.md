@@ -24,6 +24,10 @@ Kotlin / Compose Multiplatform app; all app code is in `classes5.dex` under `com
 The "Sanitize outbound links" patch rewrites the Uri before every `Intent.<init>(String, Uri)` and
 `CustomTabsIntent.launchUrl(Context, Uri)` call in `Lcom/moonsift/` classes.
 
+The add-to-collection in-app browser (`ui/addCollection/AddCollectionWebViewComposeables$CustomWebViewClient`)
+returns `false` from `shouldOverrideUrlLoading`, so links load in place. The patch hooks it too: known
+redirector links are unwrapped and loaded clean. Plain links are left alone, which avoids reload loops.
+
 ## Where the trackers come from (moonsift.com web bundle, `/assets/index-*.js`)
 
 The product link component builds the href:

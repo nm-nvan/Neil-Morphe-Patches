@@ -62,6 +62,18 @@ public final class LinkSanitizer {
         }
     }
 
+    /**
+     * @return true if [url] is an affiliate redirector link that {@link #sanitize} would unwrap.
+     */
+    public static boolean isRedirector(String url) {
+        if (url == null) return false;
+        try {
+            return unwrap(url.trim()) != null;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     // ---------------------------------------------------------------------------------------------
 
     /** @return the link a redirector points to, or null if [url] is not a known redirector. */

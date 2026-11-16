@@ -1,5 +1,7 @@
 package com.nmnvan.patches.moonsift.links
 
+import app.morphe.patcher.Fingerprint
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
@@ -17,7 +19,21 @@ import com.nmnvan.patches.thescore.shared.addInstructionsAtControlFlowLabel
 private const val EXTENSION_METHOD =
     "$EXTENSION_PACKAGE/patches/SanitizeLinksPatch;->sanitize(Landroid/net/Uri;)Landroid/net/Uri;"
 
+private const val EXTENSION_OVERRIDE_URL_LOADING =
+    "$EXTENSION_PACKAGE/patches/SanitizeLinksPatch;->overrideUrlLoading(Landroid/webkit/WebView;Landroid/webkit/WebResourceRequest;)Z"
+
 private const val APP_PACKAGE = "Lcom/moonsift/"
+
+/**
+ * WebViewClient of the add-to-collection browser. It returns false, so links load in place
+ * instead of going through an Intent.
+ */
+internal object AddCollectionShouldOverrideUrlLoadingFingerprint : Fingerprint(
+    definingClass = "Lcom/moonsift/app/ui/addCollection/AddCollectionWebViewComposeables\$CustomWebViewClient;",
+    name = "shouldOverrideUrlLoading",
+    returnType = "Z",
+    parameters = listOf("Landroid/webkit/WebView;", "Landroid/webkit/WebResourceRequest;"),
+)
 
 /**
  * Calls that open a link outside the app. In each one the Uri is the third register,
@@ -102,5 +118,20 @@ val sanitizeLinksPatch = bytecodePatch(
         }
 
         if (hooked == 0) throw PatchException("No link-opening calls found in $APP_PACKAGE classes")
+
+        // In-app browser: swap affiliate redirects for the clean link before they load.
+        // v0 is free at the start of the method (the original code writes it before reading it).
+        AddCollectionShouldOverrideUrlLoadingFingerprint.method.addInstructionsWithLabels(
+            0,
+            """
+                invoke-static/range { p1 .. p2 }, $EXTENSION_OVERRIDE_URL_LOADING
+                move-result v0
+                if-eqz v0, :run_original
+                const/4 v0, 0x1
+                return v0
+                :run_original
+                nop
+            """
+        )
     }
 }
