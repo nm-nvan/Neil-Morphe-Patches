@@ -46,6 +46,7 @@ extensions/moonsift/src/main/java/com/nmnvan/extension/moonsift/patches/
 patches/src/main/kotlin/com/nmnvan/patches/moonsift/
     shared/Constants.kt       COMPATIBILITY_MOONSIFT (APK, version "1.31"), EXTENSION_BUNDLE/PACKAGE, WebViewClient class
     shared/ExtensionPatch.kt  sharedExtensionPatch = extendWith(EXTENSION_BUNDLE)
+    shared/BytecodeUtils.kt   addInstructionsAtControlFlowLabel (own copy; no dependency on thescore code)
     profile/HideProfileHeaderPatch.kt   patch "Hide profile header"
     links/SanitizeLinksPatch.kt         patch "Sanitize outbound links"
 notes/moonsift-analysis.md  reverse-engineering notes
@@ -85,8 +86,8 @@ Hooks:
   and `Landroidx/browser/customtabs/CustomTabsIntent;->launchUrl(Landroid/content/Context;Landroid/net/Uri;)V`.
   Before each call it inserts `invoke-static/range {vUri .. vUri}, SanitizeLinksPatch->sanitize(Uri)Uri` +
   `move-result-object vUri`. The Uri is the 3rd register (registerE / startRegister+2).
-  This uses `addInstructionsAtControlFlowLabel` from `thescore/shared/BytecodeUtils.kt` (an internal fun in the
-  same module. It could be moved to a common package later).
+  This uses `addInstructionsAtControlFlowLabel` from `moonsift/shared/BytecodeUtils.kt`. Moonsift has its own copy
+  on purpose: the Moonsift and theScore patches must stay independent, so nothing is shared between their packages.
   - Expected call sites, at least: `MainActivity$bindLabels$1` (Popup), `AndroidMoonLauncher` x2, `TextComponents`,
     plus any others in `MainActivity`. The patch throws if it hooks 0. Consider logging the count or asserting >= 4.
 - Add-collection WebView: inserted at index 0 of its `shouldOverrideUrlLoading`. If `overrideUrlLoading(p1, p2)`

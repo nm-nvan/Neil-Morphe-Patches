@@ -13,8 +13,8 @@ import com.android.tools.smali.dexlib2.iface.instruction.RegisterRangeInstructio
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.nmnvan.patches.moonsift.shared.Constants.COMPATIBILITY_MOONSIFT
 import com.nmnvan.patches.moonsift.shared.Constants.EXTENSION_PACKAGE
+import com.nmnvan.patches.moonsift.shared.addInstructionsAtControlFlowLabel
 import com.nmnvan.patches.moonsift.shared.sharedExtensionPatch
-import com.nmnvan.patches.thescore.shared.addInstructionsAtControlFlowLabel
 
 private const val EXTENSION_METHOD =
     "$EXTENSION_PACKAGE/patches/SanitizeLinksPatch;->sanitize(Landroid/net/Uri;)Landroid/net/Uri;"
